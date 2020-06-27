@@ -24,7 +24,6 @@ namespace QuickTasks
         {
             InitializeComponent();
 
-            //SizeToContent = SizeToContent.Height;
         }
 
         protected override void OnContentRendered(EventArgs e)

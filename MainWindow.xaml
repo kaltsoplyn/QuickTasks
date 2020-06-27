@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:QuickTasks"
         mc:Ignorable="d"
         Name="Main"
-        Title="QuickTasks" Height="450" Width="250"
+        Title="QuickTasks" Height="450"
         Style="{StaticResource WindowStyle}">
     <Window.Resources>
         

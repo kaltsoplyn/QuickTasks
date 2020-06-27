@@ -14,3 +14,5 @@ D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.csproj.Generat
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.csproj.CoreCompileInputs.cache
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.exe
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.pdb
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\Interop.Shell32.dll
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.csproj.ResolveComReference.cache
