@@ -1,0 +1,21 @@
+﻿<Window x:Class="QuickTasks.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuickTasks"
+        mc:Ignorable="d"
+        Name="Main"
+        Title="QuickTasks" Height="450" Width="250"
+        Style="{StaticResource WindowStyle}">
+    <Window.Resources>
+        
+    </Window.Resources>
+    <StackPanel>
+        <Label Content="Title" Style="{StaticResource titleStyle}" />
+        <Label Content="Test Label" Style="{StaticResource labelStyle}"/>
+        <Button Content="TestButton" Height="40" Style="{StaticResource buttonStyle}"  />
+        <Button Content="TestButton" Height="40" Style="{StaticResource NoBtnStyle}"  />
+        <Button Content="TestButton" Height="40" Style="{StaticResource YesBtnStyle}"  />
+    </StackPanel>
+</Window>
