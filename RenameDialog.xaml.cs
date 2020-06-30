@@ -20,6 +20,8 @@ namespace QuickTasks
     /// </summary>
     public partial class RenameDialog : Window
     {
+        private string _originalName;
+
         public string NewName
         {
             get { return (string)GetValue(NewNameProperty); }
@@ -28,13 +30,13 @@ namespace QuickTasks
         public static readonly DependencyProperty NewNameProperty =
             DependencyProperty.Register("NewName", typeof(string), typeof(RenameDialog), new PropertyMetadata("Enter new name"));
 
-        public DelegateCommand<string> Cancel
-        {
-            get { return (DelegateCommand<string>)GetValue(CancelProperty); }
-            set { SetValue(CancelProperty, value); }
-        }
-        public static readonly DependencyProperty CancelProperty =
-            DependencyProperty.Register("Cancel", typeof(DelegateCommand<string>), typeof(RenameDialog));
+        //public DelegateCommand<string> Cancel
+        //{
+        //    get { return (DelegateCommand<string>)GetValue(CancelProperty); }
+        //    set { SetValue(CancelProperty, value); }
+        //}
+        //public static readonly DependencyProperty CancelProperty =
+        //    DependencyProperty.Register("Cancel", typeof(DelegateCommand<string>), typeof(RenameDialog));
 
         public DelegateCommand<string> Save
         {
@@ -50,6 +52,12 @@ namespace QuickTasks
             InitializeComponent();
         }
 
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+            _originalName = NewName;
+        }
+
         // Handle Enter/Esc keys in rename box
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -58,17 +66,15 @@ namespace QuickTasks
             {
                 if (e.Key == Key.Enter)
                 {
-                    NewName = RenameBox.Text;
-                    SaveBtn.Command?.Execute(SaveBtn.CommandParameter);
-                    e.Handled = true;  // without this, the event keeps bubbling upwards
-                    this.Close();
+                    SaveHandler();
+                    e.Handled = true;  // normally I'd need this to keep the event from bubbling upwards
                 }
             }
 
             if (e.Key == Key.Escape)
             {
+                CancelHandler(CancelBtn, new RoutedEventArgs());
                 e.Handled = true;
-                this.Close();
             }
 
         }
@@ -80,6 +86,32 @@ namespace QuickTasks
             var cursorPosition = textboxSender.SelectionStart;
             textboxSender.Text = Regex.Replace(textboxSender.Text, "[^0-9a-zA-Zα-ωΑ-ΩάέίόύήώΆΈΎΌΉΏΊϋϊΪéáóíúýäëÿöïüÁÉÝÚÍÓÄËÜÏÖ ._#()@!&-]", "");
             textboxSender.SelectionStart = cursorPosition;
+        }
+
+
+        // I handle Cancel as a click event because it does nothing; it just closes the dialog
+        private void CancelHandler(object sender, RoutedEventArgs e)
+        {
+            modRenameDialog.Close();
+        }
+
+        // I use a Click event handler for Save, and execute the Save command through it, because I also want to close the dialog.
+        private void SaveHandler() 
+        {
+            SaveHandler(SaveBtn, new RoutedEventArgs());
+        } 
+        private void SaveHandler(object sender, RoutedEventArgs e)
+        {
+            if ((RenameBox.Text != "") && (RenameBox.Text != _originalName))
+            {
+                NewName = RenameBox.Text;
+                Save.Execute(NewName);
+            }
+            else
+            {
+                CancelHandler(CancelBtn, new RoutedEventArgs());
+            }
+            modRenameDialog.Close();
         }
     }
 }

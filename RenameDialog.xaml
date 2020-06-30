@@ -8,7 +8,7 @@
         Name="modRenameDialog" Title="RenameDialog" 
         Height="110" Width="250"
         Style="{StaticResource WindowStyle}">
-    <StackPanel VerticalAlignment="Stretch" Margin="10" DataContext="{Binding ElementName=RenameDialog}">
+    <StackPanel VerticalAlignment="Stretch" Margin="10" DataContext="{Binding ElementName=modRenameDialog}">
         <Label Content="Enter new name:" Margin="20 0" Padding="0 5" Style="{StaticResource labelStyle}"></Label>
         <TextBox Name="RenameBox" Margin="20 0 20 5" Text="{Binding NewName}" 
                  MaxLength="20" TextWrapping="NoWrap" ToolTip="Max 15 Characters. Alphanumerics and some symbols allowed."
@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="30*" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Name="CancelBtn" Content="Cancel" Margin="20 5 10 0"
-                    Grid.ColumnSpan="2" Style="{StaticResource NoBtnStyle}" Command="{Binding Path=Cancel}" >
+                    Grid.ColumnSpan="2" Style="{StaticResource NoBtnStyle}" Click="CancelHandler" >
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="0 10 0 10"/>
@@ -28,7 +28,7 @@
                 </Button.Resources>
             </Button>
             <Button Grid.Column="2" Name="SaveBtn" Content="Save" Margin="10 5 20 0" 
-                    Style="{StaticResource YesBtnStyle}" Command="{Binding Path=Save}" CommandParameter="{Binding Path=NewName}" >
+                    Style="{StaticResource YesBtnStyle}" Click="SaveHandler">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="10 0 10 0"/>

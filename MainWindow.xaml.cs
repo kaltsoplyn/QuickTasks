@@ -50,13 +50,47 @@ namespace QuickTasks
             Top = System.Windows.SystemParameters.WorkArea.Height - Height;
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            base.OnMouseLeftButtonDown(e);
+            base.OnKeyDown(e);
 
-            // Begin dragging the window
-            this.DragMove();
+            // Quit on Esc or Exit renaming session
+            if (e.Key == Key.Escape)
+            {
+                if (!vm.HasUnsavedChanges) Close();
+            }
+
+            //// give keyboard focus on up/down (down -> focus @ top item | up -> focus @ bottom item )
+            //if (!MainTaskList.IsKeyboardFocused && (e.Key == Key.Down || e.Key == Key.Up))
+            //{
+            //    MainTaskList.Focus();
+            //    int focusedElement = e.Key == Key.Down ? 0 : (MainTaskList.Items.Count > 0 ? MainTaskList.Items.Count - 1 : 0);
+            //    MainTaskList.SelectedIndex = focusedElement;
+            //    ListViewItem lvi = MainTaskList.ItemContainerGenerator.ContainerFromIndex(focusedElement) as ListViewItem;
+            //    lvi?.Focus();
+            //}
+
+            //// Launch selected item on enter
+            //if (MainTaskList.SelectedItem != null && e.Key == Key.Enter)
+            //{
+            //    string _path = ((TaskItem)MainTaskList.SelectedItem).Path;
+            //    LaunchAndQuit(_path);
+            //}
+
+            //// Delete selected item on del
+            //if (MainTaskList.SelectedItem != null && e.Key == Key.Delete)
+            //{
+            //    RemoveItem((TaskItem)MainTaskList.SelectedItem, new System.Windows.RoutedEventArgs());
+            //}
         }
+
+        //protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        //{
+        //    base.OnMouseLeftButtonDown(e);
+
+        //    // Begin dragging the window
+        //    this.DragMove();
+        //}
 
         private void FlyIn(FrameworkElement e)
         {

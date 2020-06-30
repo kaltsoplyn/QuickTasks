@@ -75,7 +75,7 @@ namespace QuickTasks
         private DelegateCommand<string> TitleRenameCmd()
         {
             return new DelegateCommand<string>(
-                (s) => { TitleText = Guid.NewGuid().ToString(); HasUnsavedChanges = true; },
+                (s) => { TitleText = s; HasUnsavedChanges = true; },
                 (s) => { return true; }
                 );
         }

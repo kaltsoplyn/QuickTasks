@@ -85,10 +85,17 @@ namespace QuickTasks
             DependencyProperty.Register("Undo", typeof(DelegateCommand<string>), typeof(TitleBar));
 
 
-
         public TitleBar()
         {
             InitializeComponent();
+        }
+
+        private void OpenRenameDialog(object sender, MouseButtonEventArgs e)
+        {
+            RenameDialog RD = new RenameDialog();
+            RD.NewName = Title;   // assign NewName dep prop of RenameDialog to Title prop of TitleBar which is bound to TitleText of VM
+            RD.Save = Rename;  // assign Save delegate com of RenameDialog to Rename del com of TitleBar which is bound to TitleRename of VM
+            RD.ShowDialog();
         }
     }
 }

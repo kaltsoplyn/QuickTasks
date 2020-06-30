@@ -18,11 +18,12 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Label Name="TitleLbl"  Content="{Binding Path=Title}" Style="{StaticResource titleStyle}" ToolTip="Double Click to rename" MaxWidth="190">
-            <Label.InputBindings>
-                <MouseBinding Command="{Binding Path=Rename}" CommandParameter="#" MouseAction="LeftDoubleClick" />
-            </Label.InputBindings>
-        </Label>
+        <Label Name="TitleLbl"  Content="{Binding Path=Title}" Style="{StaticResource titleStyle}" ToolTip="Double Click to rename" MaxWidth="190"
+               MouseDoubleClick="OpenRenameDialog" />
+        <!--<Label.InputBindings>
+            <MouseBinding Command="{Binding Path=Rename}" CommandParameter="#" MouseAction="LeftDoubleClick" />
+        </Label.InputBindings>-->
+
         <Button Grid.Column="1" x:Name="UndoBtn" Content="&#8617;" Style="{StaticResource buttonStyle}" Margin="0 0 0 1" ToolTip="Undo" 
                 Command="{Binding Path=Undo}" />
         <Button Grid.Column="2" x:Name="RedoBtn" Content="&#8618;" Style="{StaticResource buttonStyle}" Margin="0 0 0 1" ToolTip="Redo" 
