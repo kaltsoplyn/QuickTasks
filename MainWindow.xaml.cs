@@ -60,28 +60,29 @@ namespace QuickTasks
                 if (!vm.HasUnsavedChanges) Close();
             }
 
-            //// give keyboard focus on up/down (down -> focus @ top item | up -> focus @ bottom item )
-            //if (!MainTaskList.IsKeyboardFocused && (e.Key == Key.Down || e.Key == Key.Up))
-            //{
-            //    MainTaskList.Focus();
-            //    int focusedElement = e.Key == Key.Down ? 0 : (MainTaskList.Items.Count > 0 ? MainTaskList.Items.Count - 1 : 0);
-            //    MainTaskList.SelectedIndex = focusedElement;
-            //    ListViewItem lvi = MainTaskList.ItemContainerGenerator.ContainerFromIndex(focusedElement) as ListViewItem;
-            //    lvi?.Focus();
-            //}
+            // give keyboard focus on up/down (down -> focus @ top item | up -> focus @ bottom item )
+            if (!MainTaskList.IsKeyboardFocused && (e.Key == Key.Down || e.Key == Key.Up))
+            {
+                MainTaskList.Focus();
+                int focusedElement = e.Key == Key.Down ? 0 : (MainTaskList.Items.Count > 0 ? MainTaskList.Items.Count - 1 : 0);
+                MainTaskList.SelectedIndex = focusedElement;
+                ListViewItem lvi = MainTaskList.ItemContainerGenerator.ContainerFromIndex(focusedElement) as ListViewItem;
+                lvi?.Focus();
+            }
 
-            //// Launch selected item on enter
-            //if (MainTaskList.SelectedItem != null && e.Key == Key.Enter)
-            //{
-            //    string _path = ((TaskItem)MainTaskList.SelectedItem).Path;
-            //    LaunchAndQuit(_path);
-            //}
+            // Launch selected item on enter
+            if (MainTaskList.SelectedItem != null && e.Key == Key.Enter)
+            {
+                string _path = ((TaskItem)MainTaskList.SelectedItem).Path;
+                vm.LaunchAndQuit.Execute(_path);
+            }
 
-            //// Delete selected item on del
-            //if (MainTaskList.SelectedItem != null && e.Key == Key.Delete)
-            //{
-            //    RemoveItem((TaskItem)MainTaskList.SelectedItem, new System.Windows.RoutedEventArgs());
-            //}
+            // Delete selected item on del
+            if (MainTaskList.SelectedItem != null && e.Key == Key.Delete)
+            {
+                string _uid = ((TaskItem)MainTaskList.SelectedItem).UID;
+                vm.RemoveItem.Execute(_uid);
+            }
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
