@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TaskItemList xmlns="https://QuickTasks.kaltsoplyn.net">
+  <Title>Browserz</Title>
+  <TaskList>
+    <TaskItem>
+      <Name>Brave</Name>
+      <Path>C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe</Path>
+      <UID>02bfd8f8-d9e6-4f97-ae5b-71f85238c687</UID>
+    </TaskItem>
+    <TaskItem>
+      <Name>Torch</Name>
+      <Path>C:\Users\kaltsoplyn\AppData\Local\Torch\Application\torch.exe</Path>
+      <UID>6f821c76-a0c3-49f6-be49-0e188c1f49c1</UID>
+    </TaskItem>
+    <TaskItem>
+      <Name>Mozilla Firefox</Name>
+      <Path>C:\Program Files\Mozilla Firefox\firefox.exe</Path>
+      <UID>fafa7f93-dc3d-4f71-a8fc-776461e7e31f</UID>
+    </TaskItem>
+    <TaskItem>
+      <Name>Opera</Name>
+      <Path>C:\Program Files\Opera\launcher.exe</Path>
+      <UID>7e86daca-1d3b-472a-b648-74222090b5c5</UID>
+    </TaskItem>
+    <TaskItem>
+      <Name>Microsoft Edge</Name>
+      <Path>C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe</Path>
+      <UID>9827f54f-3f25-4b3e-9751-65277aab5427</UID>
+    </TaskItem>
+  </TaskList>
+</TaskItemList>

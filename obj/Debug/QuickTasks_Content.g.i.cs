@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/burn.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tasks.xml")]
 
 

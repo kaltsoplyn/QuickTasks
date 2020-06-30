@@ -16,3 +16,9 @@ D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.exe
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.pdb
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\Interop.Shell32.dll
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\QuickTasks.csproj.ResolveComReference.cache
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\bin\Debug\tasks.xml
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\TitleBar.g.cs
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\TitleBar.baml
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\GeneratedInternalTypeHelper.g.cs
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\RenameDialog.g.cs
+D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\obj\Debug\RenameDialog.baml

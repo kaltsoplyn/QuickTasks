@@ -15,7 +15,7 @@ namespace QuickTasks
 {
     public class TaskItem : INotifyPropertyChanged
     {
-        // deafault and not-found images
+        // default and not-found images
         private ImageSource _defaultTaskImg = new BitmapImage(new Uri("pack://application:,,,/Images/AppGear.png"));
         private ImageSource _NotFoundTaskImg = new BitmapImage(new Uri("pack://application:,,,/Images/AppNotFound.png"));
 
@@ -64,22 +64,37 @@ namespace QuickTasks
             UID = uid;
         }
 
+        public TaskItem(string name, string path, ImageSource ico, string uid) : this(name, path, uid)
+        {
+            Name = name;
+            Path = path;
+            Ico = ico;
+            UID = uid;
+        }
+
+
         // Methods
+        // Deep copy factory
+        public TaskItem CopyFrom(TaskItem task)
+        {
+            return new TaskItem(task.Name, task.Path, task.Ico, task.UID);
+        }
+
         // LINQ XML Serialize
-        XElement XSerialize(XNamespace nmsp)
+        public XElement XSerialize(XNamespace nmsp)
         {
             return new XElement(nmsp + "TaskItem",
                 new XElement(nmsp + "Name", this.Name),
                 new XElement(nmsp + "Path", this.Path),
                 new XElement(nmsp + "UID", this.UID));
         }
-        XElement XSerialize()
+        public XElement XSerialize()
         {
             return this.XSerialize(XNamespace.None);
         }
 
         // LINQ XML Deserialize
-        TaskItem XDeserialize(XDocument xdoc, XNamespace nmsp, XElement xel)
+        public TaskItem XDeserialize(XNamespace nmsp, XElement xel)
         {
             if (!((string)xel.Name.LocalName == "TaskItem")) throw new NotSupportedException();
 

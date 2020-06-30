@@ -9,6 +9,8 @@
         <SolidColorBrush x:Key="bgColor" Color="#FF33343B" />
         <SolidColorBrush x:Key="nColor" Color="DarkRed" />
         <SolidColorBrush x:Key="yColor" Color="DarkGreen" />
+        <SolidColorBrush x:Key="dfgColor" Color="LightGray" />
+        <SolidColorBrush x:Key="dbgColor" Color="#FF999999" />
 
         <!--Window style-->
         <Style x:Key="WindowStyle" TargetType="{x:Type Window}">
@@ -18,8 +20,16 @@
             <Setter Property="Background" Value="{StaticResource bgColor}"/>
             <Setter Property="ResizeMode" Value="NoResize" />
             <Setter Property="WindowStyle" Value="None" />
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
-        
+
+        <!--Duplication: UserControls are not Windows (aw c'mon!...)-->
+        <Style x:Key="UCStyle" TargetType="{x:Type UserControl}">
+            <Setter Property="Width" Value="250" />
+            <Setter Property="Foreground" Value="{StaticResource fgColor}"/>
+            <Setter Property="Background" Value="{StaticResource bgColor}"/>
+        </Style>
+
         <!--Label styles-->
         <Style x:Key="labelStyle" TargetType="{x:Type Label}">
             <Setter Property="Foreground" Value="{StaticResource fgColor}"/>
@@ -27,6 +37,7 @@
             <Setter Property="FontFamily" Value="Segoe UI" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Padding" Value="5 0" />
         </Style>
         <Style x:Key="titleStyle" TargetType="{x:Type Label}" BasedOn="{StaticResource labelStyle}" >
             <Setter Property="FontSize" Value="9" />
@@ -55,6 +66,10 @@
                     <Setter Property="FontWeight" Value="Bold" />
                     <Setter Property="Foreground" Value="{StaticResource bgColor}" />
                     <Setter Property="Background" Value="{StaticResource fgColor}" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="{StaticResource dbgColor}" />
+                    <Setter Property="Foreground" Value="{StaticResource dfgColor}" />
                 </Trigger>
             </Style.Triggers>
         </Style>

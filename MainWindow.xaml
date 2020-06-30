@@ -6,16 +6,48 @@
         xmlns:local="clr-namespace:QuickTasks"
         mc:Ignorable="d"
         Name="Main"
-        Title="QuickTasks" Height="450"
+        Title="QuickTasks" Height="450" SizeChanged="Window_SizeChanged"
         Style="{StaticResource WindowStyle}">
-    <Window.Resources>
-        
-    </Window.Resources>
     <StackPanel>
-        <Label Content="Title" Style="{StaticResource titleStyle}" />
-        <Label Content="Test Label" Style="{StaticResource labelStyle}"/>
-        <Button Content="TestButton" Height="40" Style="{StaticResource buttonStyle}"  />
-        <Button Content="TestButton" Height="40" Style="{StaticResource NoBtnStyle}"  />
-        <Button Content="TestButton" Height="40" Style="{StaticResource YesBtnStyle}"  />
+        <Grid Margin="0">
+            <local:TitleBar x:Name="ucTitleBar" HorizontalAlignment="Stretch"
+                            Title="{Binding Path=TitleText}" 
+                            Rename="{Binding Path=TitleRename}"
+                            Save="{Binding Path=SaveToDisk}"
+                            Reload="{Binding Path=ReloadFromDisk}"
+                            Add="{Binding Path=AddItem}"
+                            Redo="{Binding Path=Redo}"
+                            Undo="{Binding Path=Undo}"
+                            Quit="{Binding Path=Quit}" />
+        </Grid>
+        
+        <Button Content="Random Rename" Command="{Binding Path=TitleRename}" Height="40" Style="{StaticResource buttonStyle}"  />
+        <Button Content="Remove From List" Command="{Binding Path=RemoveItem}" Height="40" Style="{StaticResource NoBtnStyle}"  />
+        <Button Name ="SaveBtn" Content="SaveButton" Command="{Binding Path=SaveToDisk}" Height="40" Style="{StaticResource YesBtnStyle}" />
+        <CheckBox IsChecked="{Binding ElementName=SaveBtn, Path=IsEnabled}" />
+        <Grid Name="ListContainer" Margin="0">
+            <ListView ItemsSource="{Binding tasks}" Name="MainTaskList" Padding="0" Background="{StaticResource bgColor}"
+                      BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="5 5 0 5" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="14" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                        
+                            <Image Source="{Binding Ico}" />
+                            <Label Grid.Column="1" Content="{Binding Name}" Style="{StaticResource labelStyle}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </StackPanel>
 </Window>

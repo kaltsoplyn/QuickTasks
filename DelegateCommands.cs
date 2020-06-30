@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestLVIEvents
+namespace QuickTasks
 {
     public class DelegateCommand<T> : System.Windows.Input.ICommand
     {
