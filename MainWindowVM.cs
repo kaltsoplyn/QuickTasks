@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -37,6 +38,7 @@ namespace QuickTasks
             set { _hasUnsavedChanges = value ; 
                 _saveToDisk.RaiseCanExecuteChanged();
                 _reloadFromDisk.RaiseCanExecuteChanged();
+                _launchAndQuit.RaiseCanExecuteChanged();
             } }
 
         // Commands from the View
@@ -65,7 +67,12 @@ namespace QuickTasks
         private DelegateCommand<string> RemoveItemCmd()
         {
             return new DelegateCommand<string>(
-              (s) => { tasks.RemoveAt(tasks.Count-1); if (!HasUnsavedChanges) HasUnsavedChanges = true; },
+              (s) => 
+              { 
+                  TaskItem t = GetTaskByUID(s);
+                  RemoveTask(t);
+                  if (!HasUnsavedChanges) HasUnsavedChanges = true; 
+              },
               (s) => { return true; }
           );
         }
@@ -135,8 +142,47 @@ namespace QuickTasks
                 );
         }
 
+        private readonly DelegateCommand<string> _launchAndQuit;
+        public DelegateCommand<string> LaunchAndQuit { get { return _launchAndQuit; } }
+        private DelegateCommand<string> LaunchAndQuitCmd()
+        {
+            return new DelegateCommand<string>(
+                (path) =>
+                {
+                    try
+                    {
+                        Process.Start(path);
+                        OnQuitRequest();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        throw;
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(String.Format("Path didn't lead to an executable.\nFile not found.\n{0}", e.Message), "Exception",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        //throw;
+                    }
+                },
+                (path) => { return true; }
+                );
+        }
 
-
+        private readonly DelegateCommand<string[]> _rename;
+        public DelegateCommand<string[]> Rename { get { return _rename; } }
+        private DelegateCommand<string[]> RenameCmd()
+        {
+            return new DelegateCommand<string[]>(
+                (s) => 
+                {
+                    TaskItem t = GetTaskByUID(s[1]);
+                    t.Name = s[0];
+                    HasUnsavedChanges = true; 
+                },
+                (s) => { return true; }
+                );
+        }
 
         private string _titleText;
         public string TitleText
@@ -184,6 +230,7 @@ namespace QuickTasks
             TaskItem t = new TaskItem();
 
             _titleRename = TitleRenameCmd();
+            _rename = RenameCmd();
 
             _saveToDisk = SaveToDiskCmd();
 
@@ -194,6 +241,8 @@ namespace QuickTasks
 
             _addItem = AddItemCmd();
             _removeItem = RemoveItemCmd();
+
+            _launchAndQuit = LaunchAndQuitCmd();
 
             _quit = QuitCmd();
         }
@@ -214,12 +263,26 @@ namespace QuickTasks
             return state == States.Idling;
         }
 
+        public TaskItem GetTaskByUID(string uid)
+        {
+            return tasks.Where(t => t.UID == uid).Single();
+        }
+
+        public TaskItem GetTaskByPath(string path)
+        {
+            return tasks.Where(t => t.Path == path).Single();
+        }
 
         public bool Contains(TaskItem task) // caution! this can cause confusion with the built-in List<T>.Contains(T) method
         {
             List<string> _paths = tasks.Select(x => x.Path).ToList();
 
             return _paths.Contains(task.Path);
+        }
+
+        public void RenameTask(TaskItem task, string newName)
+        {
+            task.Name = newName;
         }
 
         public void RemoveTask(TaskItem task)

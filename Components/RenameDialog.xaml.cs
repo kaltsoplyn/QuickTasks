@@ -30,6 +30,16 @@ namespace QuickTasks
         public static readonly DependencyProperty NewNameProperty =
             DependencyProperty.Register("NewName", typeof(string), typeof(RenameDialog), new PropertyMetadata("Enter new name"));
 
+        //public string Identifier
+        //{
+        //    get { return (string)GetValue(IdentifierProperty); }
+        //    set { SetValue(IdentifierProperty, value); }
+        //}
+        //public static readonly DependencyProperty IdentifierProperty =
+        //    DependencyProperty.Register("Identifier", typeof(string), typeof(RenameDialog), new PropertyMetadata(string.Empty));
+
+
+
         //public DelegateCommand<string> Cancel
         //{
         //    get { return (DelegateCommand<string>)GetValue(CancelProperty); }

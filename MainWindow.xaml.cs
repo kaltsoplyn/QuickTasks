@@ -47,7 +47,7 @@ namespace QuickTasks
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Top = System.Windows.SystemParameters.WorkArea.Height - Height;
+            Top = System.Windows.SystemParameters.WorkArea.Height - ActualHeight;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -84,13 +84,19 @@ namespace QuickTasks
             //}
         }
 
-        //protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        //{
-        //    base.OnMouseLeftButtonDown(e);
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+            try
+            {
+                this.DragMove();
+            }
+            catch
+            {
+                // do nothing
+            }
+        }
 
-        //    // Begin dragging the window
-        //    this.DragMove();
-        //}
 
         private void FlyIn(FrameworkElement e)
         {

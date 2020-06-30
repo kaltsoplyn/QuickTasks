@@ -90,11 +90,16 @@ namespace QuickTasks
             InitializeComponent();
         }
 
+        
+
         private void OpenRenameDialog(object sender, MouseButtonEventArgs e)
         {
             RenameDialog RD = new RenameDialog();
             RD.NewName = Title;   // assign NewName dep prop of RenameDialog to Title prop of TitleBar which is bound to TitleText of VM
             RD.Save = Rename;  // assign Save delegate com of RenameDialog to Rename del com of TitleBar which is bound to TitleRename of VM
+            Point pos = this.PointToScreen(new Point(0, 0));
+            RD.Left = pos.X;
+            RD.Top = Math.Min(pos.Y, System.Windows.SystemParameters.WorkArea.Height - RD.Height);
             RD.ShowDialog();
         }
     }

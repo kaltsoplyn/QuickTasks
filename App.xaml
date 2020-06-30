@@ -25,9 +25,9 @@
 
         <!--Duplication: UserControls are not Windows (aw c'mon!...)-->
         <Style x:Key="UCStyle" TargetType="{x:Type UserControl}">
-            <Setter Property="Width" Value="250" />
             <Setter Property="Foreground" Value="{StaticResource fgColor}"/>
             <Setter Property="Background" Value="{StaticResource bgColor}"/>
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
 
         <!--Label styles-->
@@ -37,10 +37,10 @@
             <Setter Property="FontFamily" Value="Segoe UI" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="Padding" Value="5 0" />
         </Style>
         <Style x:Key="titleStyle" TargetType="{x:Type Label}" BasedOn="{StaticResource labelStyle}" >
             <Setter Property="FontSize" Value="9" />
+            <Setter Property="Padding" Value="5 0" />
         </Style>
         <Style x:Key="dialogStyle" TargetType="{x:Type Label}" BasedOn="{StaticResource labelStyle}" >
             <Setter Property="HorizontalAlignment" Value="Center" />
