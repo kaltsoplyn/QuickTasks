@@ -28,13 +28,13 @@ namespace QuickTasks
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(TitleBar), new PropertyMetadata("My list of tasks"));
 
-        public DelegateCommand<string> Rename
+        public DelegateCommand<string[]> Rename
         {
-            get { return (DelegateCommand<string>)GetValue(RenameProperty); }
+            get { return (DelegateCommand<string[]>)GetValue(RenameProperty); }
             set { SetValue(RenameProperty, value); }
         }
         public static readonly DependencyProperty RenameProperty =
-            DependencyProperty.Register("Rename", typeof(DelegateCommand<string>), typeof(TitleBar));
+            DependencyProperty.Register("Rename", typeof(DelegateCommand<string[]>), typeof(TitleBar));
 
         public DelegateCommand<string> Quit
         {
@@ -96,6 +96,7 @@ namespace QuickTasks
         {
             RenameDialog RD = new RenameDialog();
             RD.NewName = Title;   // assign NewName dep prop of RenameDialog to Title prop of TitleBar which is bound to TitleText of VM
+            RD.Identifier = "#";
             RD.Save = Rename;  // assign Save delegate com of RenameDialog to Rename del com of TitleBar which is bound to TitleRename of VM
             Point pos = this.PointToScreen(new Point(0, 0));
             RD.Left = pos.X;

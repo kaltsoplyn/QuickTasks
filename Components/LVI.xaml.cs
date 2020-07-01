@@ -37,24 +37,6 @@ namespace QuickTasks
         public static readonly DependencyProperty LaunchProperty =
             DependencyProperty.Register("Launch", typeof(DelegateCommand<string>), typeof(LVI));
 
-
-        // I hate this. I'm using a command to extract the new name coming from the RenameDialog, and then I'sending this over
-        // to the view model with a new command Rename with parameters [new name, task UID]
-        // Why can't I just intercept the command parameters from the RenameDialog?
-        private string _newName;
-        private readonly DelegateCommand<string> _renameCommandHelper;
-        public DelegateCommand<string> RenameCommandHelper {  get { return _renameCommandHelper; } }
-        private DelegateCommand<string> RenameCommandHelperCmd()
-        {
-            return new DelegateCommand<string>(
-                (s) =>
-                {
-                    _newName = s;
-                    Rename.Execute(new string[] { _newName, LVItem.UID });
-                }, 
-                (s) => { return true; });
-        } 
-
         public DelegateCommand<string[]> Rename
         {
             get { return (DelegateCommand<string[]>)GetValue(RenameProperty); }
@@ -74,13 +56,12 @@ namespace QuickTasks
 
 
 
-
+        private Brush _bgColor;
 
         public LVI()
         {
             InitializeComponent();
-
-            _renameCommandHelper = RenameCommandHelperCmd();
+            _bgColor = this.Background;
         }
 
         private void InitiateLaunch(object sender, MouseButtonEventArgs e)
@@ -92,11 +73,30 @@ namespace QuickTasks
         {
             RenameDialog RD = new RenameDialog();
             RD.NewName = LVItem.Name;
-            RD.Save = RenameCommandHelper;
+            RD.Identifier = LVItem.UID;
+            RD.Save = Rename;
             Point pos = this.PointToScreen(new Point(0, 0));
             RD.Left = pos.X;
             RD.Top = Math.Min(pos.Y, System.Windows.SystemParameters.WorkArea.Height - RD.Height);
             RD.ShowDialog();
+        }
+
+        protected override void OnDragEnter(DragEventArgs e)
+        {
+            base.OnDragEnter(e);
+            this.Background = Brushes.Gray;
+        }
+
+        protected override void OnDragLeave(DragEventArgs e)
+        {
+            base.OnDragLeave(e);
+            this.Background = _bgColor;
+        }
+
+        protected override void OnDrop(DragEventArgs e)
+        {
+            base.OnDrop(e);
+            this.Background = _bgColor;
         }
     }
 }

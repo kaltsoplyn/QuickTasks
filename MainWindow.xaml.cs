@@ -36,6 +36,41 @@ namespace QuickTasks
 
             vm.QuitRequest += (sender, e) => this.Close();
 
+            vm.PropertyChanged += async (sender, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case "InfoMsg":
+                        ucInfo.Message = vm.InfoMsg.Item2;
+                        Brush _bg = this.Background;
+                        switch (vm.InfoMsg.Item1)
+                        {
+                            case MainWindowVM.Log.Info:
+                                ucInfo.Background = Brushes.Aquamarine;
+                                ucInfo.LogLbl.Background = Brushes.DarkGreen;
+                                ucInfo.LogLevel = ucInfo.LogSigns["Info"];
+                                break;
+                            case MainWindowVM.Log.Warning:
+                                ucInfo.Background = Brushes.LightGoldenrodYellow;
+                                ucInfo.LogLbl.Background = Brushes.DarkOrange;
+                                ucInfo.LogLevel = ucInfo.LogSigns["Warning"];
+                                break;
+                            case MainWindowVM.Log.Error:
+                                ucInfo.Background = Brushes.DeepPink;
+                                ucInfo.LogLbl.Background = Brushes.DarkRed;
+                                ucInfo.LogLevel = ucInfo.LogSigns["Error"];
+                                break;
+                        }
+                        await Task.Delay(2000);
+                        ucInfo.Background = _bg;
+                        ucInfo.LogLbl.Background = _bg;
+                        ucInfo.LogLevel = string.Empty;
+                        ucInfo.Message = string.Empty;
+                        break;
+                    default:
+                        break;
+                }
+            };
 
         }
 
@@ -50,6 +85,31 @@ namespace QuickTasks
             Top = System.Windows.SystemParameters.WorkArea.Height - ActualHeight;
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+            if (Keyboard.Modifiers == ModifierKeys.Shift && MainTaskList.SelectedIndex != -1)
+            {
+                e.Handled = true;
+                TaskItem task = MainTaskList.SelectedItem as TaskItem;
+                int curIndex = MainTaskList.SelectedIndex;
+                if (e.Key == Key.Down)
+                {
+                    vm.MoveDown.Execute(task.UID);
+                    MainTaskList.Focus();
+                    MainTaskList.SelectedIndex = curIndex < vm.tasks.Count - 1? curIndex + 1 : curIndex;
+                }
+                else if (e.Key == Key.Up)
+                {
+                    vm.MoveUp.Execute(task.UID);
+                    MainTaskList.Focus();
+                    MainTaskList.SelectedIndex = curIndex > 0 ? curIndex - 1 : curIndex;
+                }
+                ListViewItem lvi = MainTaskList.ItemContainerGenerator.ContainerFromIndex(MainTaskList.SelectedIndex) as ListViewItem;
+                lvi?.Focus();
+            }
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -60,15 +120,19 @@ namespace QuickTasks
                 if (!vm.HasUnsavedChanges) Close();
             }
 
-            // give keyboard focus on up/down (down -> focus @ top item | up -> focus @ bottom item )
+
             if (!MainTaskList.IsKeyboardFocused && (e.Key == Key.Down || e.Key == Key.Up))
             {
                 MainTaskList.Focus();
-                int focusedElement = e.Key == Key.Down ? 0 : (MainTaskList.Items.Count > 0 ? MainTaskList.Items.Count - 1 : 0);
-                MainTaskList.SelectedIndex = focusedElement;
-                ListViewItem lvi = MainTaskList.ItemContainerGenerator.ContainerFromIndex(focusedElement) as ListViewItem;
+                MainTaskList.SelectedIndex = (MainTaskList.SelectedIndex == -1) ?
+                    e.Key == Key.Down ? 0 : (MainTaskList.Items.Count > 0 ? MainTaskList.Items.Count - 1 : 0) :
+                    MainTaskList.SelectedIndex;
+                                
+                ListViewItem lvi = MainTaskList.ItemContainerGenerator.ContainerFromIndex(MainTaskList.SelectedIndex) as ListViewItem;
                 lvi?.Focus();
             }
+
+
 
             // Launch selected item on enter
             if (MainTaskList.SelectedItem != null && e.Key == Key.Enter)
@@ -130,6 +194,23 @@ namespace QuickTasks
             e.Visibility = Visibility.Collapsed;
         }
 
-        
+        public void LVI_Drag(object sender, MouseEventArgs e)
+        {
+            FrameworkElement lvi = sender as FrameworkElement;
+            string taskUID = ((TaskItem)lvi.DataContext).UID;
+            if (lvi != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                DragDrop.DoDragDrop(lvi, taskUID, DragDropEffects.Move);
+            }
+        }
+
+        public void LVI_Drop(object sender, DragEventArgs e)
+        {
+            string thisTaskUID = ((sender as FrameworkElement).DataContext as TaskItem)?.UID ?? String.Empty; // this is fucking brilliant
+            string dropTaskUID = (string)e.Data.GetData(DataFormats.StringFormat);
+
+            vm.DragDrop.Execute(new string[] { dropTaskUID, thisTaskUID });
+        }
+
     }
 }

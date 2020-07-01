@@ -18,7 +18,14 @@ namespace QuickTasks
         
         // Informational (logLevel, info message) tuple to pass around
         public enum Log { Info, Warning, Error};
-        public (Log, string) InfoMsg = (Log.Info, string.Empty);
+        private (Log, string) infoMsg = (Log.Info, string.Empty);
+        public (Log, string) InfoMsg { 
+            get { return infoMsg; }
+            set 
+            { 
+                infoMsg = value; 
+                OnPropertyChanged();
+            } }
 
         // depth of undo list
         private int undoLevels = 10;
@@ -70,22 +77,14 @@ namespace QuickTasks
               (s) => 
               { 
                   TaskItem t = GetTaskByUID(s);
-                  RemoveTask(t);
-                  if (!HasUnsavedChanges) HasUnsavedChanges = true; 
+                  if (RemoveTask(t))
+                    if (!HasUnsavedChanges) HasUnsavedChanges = true; 
               },
               (s) => { return true; }
           );
         }
 
-        private readonly DelegateCommand<string> _titleRename;
-        public DelegateCommand<string> TitleRename { get { return _titleRename; } }
-        private DelegateCommand<string> TitleRenameCmd()
-        {
-            return new DelegateCommand<string>(
-                (s) => { TitleText = s; HasUnsavedChanges = true; },
-                (s) => { return true; }
-                );
-        }
+
 
         private readonly DelegateCommand<string> _addItem;
         public DelegateCommand<string> AddItem { get { return _addItem; } }
@@ -100,8 +99,8 @@ namespace QuickTasks
                         InfoMsg = (Log.Error, "Path not resolved.");
                         return;
                     }
-                    AddTask(new TaskItem(_path));
-                    if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                    if (AddTask(new TaskItem(_path)))
+                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
                 },
                 (s) => { return true; }
                 );
@@ -124,6 +123,49 @@ namespace QuickTasks
             return new DelegateCommand<string>(
                 (s) => { new NotImplementedException(); },
                 (s) => { return true; }
+                );
+        }
+
+        private readonly DelegateCommand<string> _moveUp;
+        public DelegateCommand<string> MoveUp { get { return _moveUp; } }
+        private DelegateCommand<string> MoveUpCmd()
+        {
+            return new DelegateCommand<string>(
+                (uid) => 
+                { 
+                    if (MoveTaskUp(GetTaskByUID(uid)))
+                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                },
+                (uid) => { return true; }
+                );
+        }
+
+        private readonly DelegateCommand<string> _moveDown;
+        public DelegateCommand<string> MoveDown { get { return _moveDown; } }
+        private DelegateCommand<string> MoveDownCmd()
+        {
+            return new DelegateCommand<string>(
+                (uid) =>
+                {
+                    if (MoveTaskDown(GetTaskByUID(uid)))
+                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                },
+                (uid) => { return true; }
+                );
+        }
+
+        private readonly DelegateCommand<string[]> _dragDrop;
+        public DelegateCommand<string[]> DragDrop { get { return _dragDrop; } }
+        private DelegateCommand<string[]> DragDropCmd()
+        {
+            return new DelegateCommand<string[]>(
+                (uids) =>
+                {
+                    TaskItem targetTask = uids[1] == String.Empty ? new TaskItem() : GetTaskByUID(uids[1]);
+                    if (DropTaskAt(GetTaskByUID(uids[0]), targetTask))
+                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                },
+                (uids) => { return true; }
                 );
         }
 
@@ -169,6 +211,21 @@ namespace QuickTasks
                 );
         }
 
+
+        private readonly DelegateCommand<string[]> _titleRename;
+        public DelegateCommand<string[]> TitleRename { get { return _titleRename; } }
+        private DelegateCommand<string[]> TitleRenameCmd()
+        {
+            return new DelegateCommand<string[]>(
+                (s) => {
+                    TitleText = s[0];
+                    InfoMsg = (Log.Info, "The list was renamed");
+                    HasUnsavedChanges = true;
+                },
+                (s) => { return true; }
+                );
+        }
+
         private readonly DelegateCommand<string[]> _rename;
         public DelegateCommand<string[]> Rename { get { return _rename; } }
         private DelegateCommand<string[]> RenameCmd()
@@ -177,12 +234,13 @@ namespace QuickTasks
                 (s) => 
                 {
                     TaskItem t = GetTaskByUID(s[1]);
-                    t.Name = s[0];
+                    RenameTask(t, s[0]);
                     HasUnsavedChanges = true; 
                 },
                 (s) => { return true; }
                 );
         }
+
 
         private string _titleText;
         public string TitleText
@@ -190,6 +248,7 @@ namespace QuickTasks
             get { return _titleText; }
             set { _titleText = value; OnPropertyChanged(); }
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = null)
@@ -229,11 +288,11 @@ namespace QuickTasks
 
             TaskItem t = new TaskItem();
 
+            // Command registration
             _titleRename = TitleRenameCmd();
             _rename = RenameCmd();
 
             _saveToDisk = SaveToDiskCmd();
-
             _reloadFromDisk = ReloadFromDiskCmd();
 
             _redo = RedoCmd();
@@ -242,8 +301,11 @@ namespace QuickTasks
             _addItem = AddItemCmd();
             _removeItem = RemoveItemCmd();
 
-            _launchAndQuit = LaunchAndQuitCmd();
+            _moveUp = MoveUpCmd();
+            _moveDown = MoveDownCmd();
+            _dragDrop = DragDropCmd();
 
+            _launchAndQuit = LaunchAndQuitCmd();
             _quit = QuitCmd();
         }
         #endregion
@@ -283,51 +345,129 @@ namespace QuickTasks
         public void RenameTask(TaskItem task, string newName)
         {
             task.Name = newName;
+            InfoMsg = (Log.Info, "A task was renamed.");
         }
 
-        public void RemoveTask(TaskItem task)
+        public bool RemoveTask(TaskItem task)
         {
-            if (tasks.Remove(task)) 
+            if (tasks.Remove(task))
+            {
                 InfoMsg = (Log.Info, "A task was removed.");
-            // I don't handle failure here, because I can't see a way for relayed task to not be in the list
+                return true;
+            }
+            else
+            {
+                InfoMsg = (Log.Warning, "Task could not be removed.");
+                return false;
+            }
         }
 
-        public void AddTask(TaskItem task)
+        public bool AddTask(TaskItem task)
         {
             if (Contains(task))
             {
-                InfoMsg = (Log.Warning, "Task already in list."); 
+                InfoMsg = (Log.Warning, "Task already in list.");
+                return false;
             }
             else
             {
                 tasks.Add(task);
                 InfoMsg = (Log.Info, "A new task was added.");
+                return true;
             }
         }
 
-        public void AddTaskAfter(TaskItem taskToAdd, TaskItem taskToAddAfter)
+        public bool AddTaskAfter(TaskItem taskToAdd, TaskItem taskToAddAfter)
         {
             if (Contains(taskToAddAfter) && !Contains(taskToAdd))
             {
                 int _index = tasks.IndexOf(taskToAddAfter);
                 tasks.Insert(_index + 1, taskToAdd);
+                return true;
             }
             else
             {
                 InfoMsg = (Log.Error, taskToAdd.Name + " could not be inserted after " + taskToAddAfter.Name);
+                return false;
             }
         }
 
-        public void AddTaskBefore(TaskItem taskToAdd, TaskItem taskToAddBefore)
+        public bool AddTaskBefore(TaskItem taskToAdd, TaskItem taskToAddBefore)
         {
             if (Contains(taskToAddBefore) && !Contains(taskToAdd))
             {
                 int _index = tasks.IndexOf(taskToAddBefore);
                 tasks.Insert(_index, taskToAdd);
+                InfoMsg = (Log.Info, "A task was moved.");
+                return true;
             }
             else
             {
                 InfoMsg = (Log.Error, taskToAdd.Name + " could not be inserted after " + taskToAddBefore.Name);
+                return false;
+            }
+        }
+
+        public bool DropTaskAt(TaskItem taskToMove, TaskItem taskToMoveBefore)
+        {
+            if (!Contains(taskToMove)) { InfoMsg = (Log.Error, "Uknown error: Task not found"); return false; }
+
+            int _oldIndex = tasks.IndexOf(taskToMove);
+
+            if (taskToMoveBefore.UID == string.Empty)
+            {
+                tasks.Move(_oldIndex, tasks.Count - 1);
+            }
+            else if (Contains(taskToMoveBefore))
+            {
+                int _newIndex = tasks.IndexOf(taskToMoveBefore);
+                
+                if (_oldIndex == _newIndex)
+                {
+                    InfoMsg = (Log.Warning, "Won't move task on itself.");
+                    return false;
+                }
+                tasks.Move(_oldIndex, _newIndex);
+            }
+            else
+            {
+                InfoMsg = (Log.Error, taskToMove.Name + " could not be moved.");
+                return false;
+            }
+
+            InfoMsg = (Log.Info, "A task was moved.");
+            return true;
+        }
+
+        public bool MoveTaskUp(TaskItem task)
+        {
+            int index = tasks.IndexOf(task);
+            if (index > 0)
+            {
+                tasks.Move(index, index - 1);
+                InfoMsg = (Log.Info, "Task moved up.");
+                return true;
+            }
+            else
+            {
+                InfoMsg = (Log.Warning, "Task already at the top.");
+                return false;
+            }
+        }
+
+        public bool MoveTaskDown(TaskItem task)
+        {
+            int index = tasks.IndexOf(task);
+            if (index < tasks.Count - 1)
+            {
+                tasks.Move(index, index + 1);
+                InfoMsg = (Log.Info, "Task moved down.");
+                return true;
+            }
+            else
+            {
+                InfoMsg = (Log.Warning, "Task already at the bottom.");
+                return false;
             }
         }
 

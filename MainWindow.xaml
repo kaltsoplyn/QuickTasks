@@ -8,7 +8,11 @@
         Name="Main"
         Title="QuickTasks" Height="450" SizeChanged="Window_SizeChanged"
         Style="{StaticResource WindowStyle}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
     <StackPanel>
+        <Label />
         <Grid Margin="0">
             <local:TitleBar x:Name="ucTitleBar" HorizontalAlignment="Stretch"
                             Title="{Binding Path=TitleText}" 
@@ -20,11 +24,13 @@
                             Undo="{Binding Path=Undo}"
                             Quit="{Binding Path=Quit}" />
         </Grid>
-        
-        <Button Content="Random Rename" Command="{Binding Path=TitleRename}" Height="40" Style="{StaticResource buttonStyle}"  />
-        <Button Content="Remove From List" Command="{Binding Path=RemoveItem}" Height="40" Style="{StaticResource NoBtnStyle}"  />
-        <Button Name ="SaveBtn" Content="SaveButton" Command="{Binding Path=SaveToDisk}" Height="40" Style="{StaticResource YesBtnStyle}" />
-        <CheckBox IsChecked="{Binding ElementName=SaveBtn, Path=IsEnabled}" />
+        <DockPanel Margin="10" Visibility="{Binding ElementName=MainTaskList, Path=ItemsSource.IsEmpty, Converter={StaticResource BoolToVis}}">
+            <TextBlock x:Name="EmptyListBanner" TextAlignment="Center" TextWrapping="Wrap" >
+                    There is nothing here. <LineBreak/> 
+                    Use "+" or drag and drop<LineBreak />
+                    to add new tasks...
+            </TextBlock>
+        </DockPanel>
         <StackPanel Name="ListContainer" Margin="0" >
             <ListView ItemsSource="{Binding tasks}" Name="MainTaskList" Padding="0" Margin="0" Background="{StaticResource bgColor}"
                       BorderBrush="{x:Null}" >
@@ -42,10 +48,15 @@
                             Launch="{Binding DataContext.LaunchAndQuit, RelativeSource={RelativeSource AncestorType=ListView}}" 
                             Rename="{Binding DataContext.Rename, RelativeSource={RelativeSource AncestorType=ListView}}"
                             Delete="{Binding DataContext.RemoveItem, RelativeSource={RelativeSource AncestorType=ListView}}"
-                            Padding="0" />
+                            Padding="0"
+                            MouseMove="LVI_Drag"
+                            AllowDrop="True"
+                            Drop="LVI_Drop"                            
+                            />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </StackPanel>
+        <local:InfoBox x:Name="ucInfo" Message="" LogLevel="" AllowDrop="True" Drop="LVI_Drop" />
     </StackPanel>
 </Window>

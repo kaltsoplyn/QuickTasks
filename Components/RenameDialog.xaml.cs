@@ -30,31 +30,21 @@ namespace QuickTasks
         public static readonly DependencyProperty NewNameProperty =
             DependencyProperty.Register("NewName", typeof(string), typeof(RenameDialog), new PropertyMetadata("Enter new name"));
 
-        //public string Identifier
-        //{
-        //    get { return (string)GetValue(IdentifierProperty); }
-        //    set { SetValue(IdentifierProperty, value); }
-        //}
-        //public static readonly DependencyProperty IdentifierProperty =
-        //    DependencyProperty.Register("Identifier", typeof(string), typeof(RenameDialog), new PropertyMetadata(string.Empty));
-
-
-
-        //public DelegateCommand<string> Cancel
-        //{
-        //    get { return (DelegateCommand<string>)GetValue(CancelProperty); }
-        //    set { SetValue(CancelProperty, value); }
-        //}
-        //public static readonly DependencyProperty CancelProperty =
-        //    DependencyProperty.Register("Cancel", typeof(DelegateCommand<string>), typeof(RenameDialog));
-
-        public DelegateCommand<string> Save
+        public string Identifier
         {
-            get { return (DelegateCommand<string>)GetValue(SaveProperty); }
+            get { return (string)GetValue(IdentifierProperty); }
+            set { SetValue(IdentifierProperty, value); }
+        }
+        public static readonly DependencyProperty IdentifierProperty =
+            DependencyProperty.Register("Identifier", typeof(string), typeof(RenameDialog), new PropertyMetadata(string.Empty));
+
+        public DelegateCommand<string[]> Save
+        {
+            get { return (DelegateCommand<string[]>)GetValue(SaveProperty); }
             set { SetValue(SaveProperty, value); }
         }
         public static readonly DependencyProperty SaveProperty =
-            DependencyProperty.Register("Save", typeof(DelegateCommand<string>), typeof(RenameDialog));
+            DependencyProperty.Register("Save", typeof(DelegateCommand<string[]>), typeof(RenameDialog));
 
 
         public RenameDialog()
@@ -115,7 +105,8 @@ namespace QuickTasks
             if ((RenameBox.Text != "") && (RenameBox.Text != _originalName))
             {
                 NewName = RenameBox.Text;
-                Save.Execute(NewName);
+                Identifier = Identifier ?? "";
+                Save.Execute(new string[] { NewName, Identifier });
             }
             else
             {

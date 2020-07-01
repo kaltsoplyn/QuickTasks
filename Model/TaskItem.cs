@@ -43,7 +43,7 @@ namespace QuickTasks
             Name = string.Empty;
             Path = string.Empty;
             Ico = _defaultTaskImg;
-            UID = Guid.NewGuid().ToString();
+            UID = string.Empty;
         }
 
         public TaskItem(string path) : this()

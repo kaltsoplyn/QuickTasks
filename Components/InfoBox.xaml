@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="QuickTasks.InfoBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:QuickTasks"
+             mc:Ignorable="d" 
+             Name="ucInfoBox"
+             d:DesignHeight="24" d:DesignWidth="250"
+             Style="{StaticResource UCStyle}">
+    <UserControl.Resources>
+        <local:LogToInfoSignConverter x:Key="LogToInfoSign" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" x:Name="LogLbl" Content="{Binding ElementName=ucInfoBox, Path=LogLevel}" Style="{StaticResource chipStyle}" />
+        <Label Grid.Column="1" x:Name="MsgLbl" Content="{Binding ElementName=ucInfoBox, Path=Message}" Style="{StaticResource infoStyle}" />
+    </Grid>
+    </UserControl>
