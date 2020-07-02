@@ -33,7 +33,7 @@ namespace QuickTasks.Model
             }
             catch (Exception)
             {
-                _ico = new Icon("pack://application/,,,/Images/burn.ico");
+                _ico = new Icon(Application.GetResourceStream(new Uri("pack://application:,,,/Images/burn.ico")).Stream);
             }
 
             return _ico;

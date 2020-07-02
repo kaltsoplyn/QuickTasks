@@ -161,9 +161,24 @@ namespace QuickTasks
             return new DelegateCommand<string[]>(
                 (uids) =>
                 {
+                    if (uids.Length == 0) { InfoMsg = (Log.Error, "Dropped task neither task nor exe"); return; }
+
                     TaskItem targetTask = uids[1] == String.Empty ? new TaskItem() : GetTaskByUID(uids[1]);
-                    if (DropTaskAt(GetTaskByUID(uids[0]), targetTask))
+                    TaskItem droppedTask = new TaskItem();
+                    switch (uids.Length)
+                    {
+                        case 2:
+                            droppedTask = GetTaskByUID(uids[0]);
+                            break;
+                        case 3:
+                            droppedTask = new TaskItem(uids[2]);
+                            break;
+                        //default:
+                        //    break;
+                    }
+                    if (DropTaskAt(droppedTask, targetTask))
                         if (!HasUnsavedChanges) HasUnsavedChanges = true;
+
                 },
                 (uids) => { return true; }
                 );
@@ -394,33 +409,42 @@ namespace QuickTasks
 
         public bool AddTaskBefore(TaskItem taskToAdd, TaskItem taskToAddBefore)
         {
-            if (Contains(taskToAddBefore) && !Contains(taskToAdd))
+            if (taskToAddBefore.UID == string.Empty) // a string.Empty as UID of target means "add at the end"
+            {
+                return(AddTask(taskToAdd));
+            }
+            else if (Contains(taskToAddBefore) && !Contains(taskToAdd))
             {
                 int _index = tasks.IndexOf(taskToAddBefore);
                 tasks.Insert(_index, taskToAdd);
-                InfoMsg = (Log.Info, "A task was moved.");
+                InfoMsg = (Log.Info, "A task was added.");
                 return true;
             }
             else
             {
-                InfoMsg = (Log.Error, taskToAdd.Name + " could not be inserted after " + taskToAddBefore.Name);
+                InfoMsg = (Log.Error, taskToAdd.Name + " could not be added");
                 return false;
             }
         }
 
-        public bool DropTaskAt(TaskItem taskToMove, TaskItem taskToMoveBefore)
+        public bool DropTaskAt(TaskItem dropTask, TaskItem taskToDropBefore)
         {
-            if (!Contains(taskToMove)) { InfoMsg = (Log.Error, "Uknown error: Task not found"); return false; }
+            if (!Contains(dropTask)) { return(AddTaskBefore(dropTask, taskToDropBefore)); }
 
-            int _oldIndex = tasks.IndexOf(taskToMove);
+            int _oldIndex = tasks.IndexOf(dropTask);
+            if (_oldIndex == -1)
+            {
+                InfoMsg = (Log.Warning, "Task already in list.");
+                return false;
+            }
 
-            if (taskToMoveBefore.UID == string.Empty)
+            if (taskToDropBefore.UID == string.Empty)
             {
                 tasks.Move(_oldIndex, tasks.Count - 1);
             }
-            else if (Contains(taskToMoveBefore))
+            else if (Contains(taskToDropBefore))
             {
-                int _newIndex = tasks.IndexOf(taskToMoveBefore);
+                int _newIndex = tasks.IndexOf(taskToDropBefore);
                 
                 if (_oldIndex == _newIndex)
                 {
@@ -431,7 +455,7 @@ namespace QuickTasks
             }
             else
             {
-                InfoMsg = (Log.Error, taskToMove.Name + " could not be moved.");
+                InfoMsg = (Log.Error, dropTask.Name + " could not be moved.");
                 return false;
             }
 

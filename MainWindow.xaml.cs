@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -78,6 +79,7 @@ namespace QuickTasks
         {
             base.OnContentRendered(e);
             Top = System.Windows.SystemParameters.WorkArea.Height - Height;
+            Left = System.Windows.SystemParameters.WorkArea.Width / 3;
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -207,9 +209,21 @@ namespace QuickTasks
         public void LVI_Drop(object sender, DragEventArgs e)
         {
             string thisTaskUID = ((sender as FrameworkElement).DataContext as TaskItem)?.UID ?? String.Empty; // this is fucking brilliant
-            string dropTaskUID = (string)e.Data.GetData(DataFormats.StringFormat);
+            string dropTask = (string)e.Data.GetData(DataFormats.StringFormat)?? (e.Data.GetData(DataFormats.FileDrop) as string[]).First();
 
-            vm.DragDrop.Execute(new string[] { dropTaskUID, thisTaskUID });
+            if (File.Exists(dropTask) || Directory.Exists(dropTask))
+            {
+                vm.DragDrop.Execute(new string[] { "", thisTaskUID, dropTask });
+            }
+            else if (Guid.Parse(dropTask) != null)
+            {
+                vm.DragDrop.Execute(new string[] { dropTask, thisTaskUID });
+            } 
+            else
+            {
+                vm.DragDrop.Execute(new string[] { });
+            }
+
         }
 
     }

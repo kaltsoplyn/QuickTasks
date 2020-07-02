@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tasks.xml")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("floppy%20small.ico")]
 
 
