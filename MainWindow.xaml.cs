@@ -43,7 +43,7 @@ namespace QuickTasks
                 {
                     case "InfoMsg":
                         ucInfo.Message = vm.InfoMsg.Item2;
-                        Brush _bg = this.Background;
+                        Brush _bg = Brushes.Transparent;
                         switch (vm.InfoMsg.Item1)
                         {
                             case MainWindowVM.Log.Info:
@@ -215,15 +215,18 @@ namespace QuickTasks
             {
                 vm.DragDrop.Execute(new string[] { "", thisTaskUID, dropTask });
             }
-            else if (Guid.Parse(dropTask) != null)
-            {
-                vm.DragDrop.Execute(new string[] { dropTask, thisTaskUID });
-            } 
             else
             {
-                vm.DragDrop.Execute(new string[] { });
+                try
+                {
+                    Guid.Parse(dropTask); // this will raise an exception if dropTask is not a Guid in string form
+                    vm.DragDrop.Execute(new string[] { dropTask, thisTaskUID });
+                }
+                catch
+                {
+                    vm.DragDrop.Execute(new string[] { });
+                }
             }
-
         }
 
     }

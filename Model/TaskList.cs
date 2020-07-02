@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -47,8 +48,27 @@ namespace QuickTasks.Model
         
         private (XDocument, XNamespace) getXDoc()
         {
-            XDocument xml = XDocument.Load(_taskFile);
-            return (xml, xml.Root.Name.Namespace);
+            if (File.Exists(TaskFile))
+            {
+                XDocument xml = XDocument.Load(TaskFile);
+                return (xml, xml.Root.Name.Namespace);
+            }
+            else
+            {
+                XNamespace nmsp = "https://QuickTasks.kaltsoplyn.net";
+                XDocument xml = new XDocument(
+                    new XDeclaration("1.0", "utf-8", "yes"),
+                    new XElement(nmsp + "TaskItemList", 
+                        new XElement(nmsp + "Title", "A list of tasks"),
+                        new XElement(nmsp + "TaskList", ""))
+                    );
+
+                xml.Save(TaskFile);
+
+                xml = XDocument.Load(TaskFile);
+                return (xml, xml.Root.Name.Namespace);
+            }
+            
         }
 
         public string GetTitle()

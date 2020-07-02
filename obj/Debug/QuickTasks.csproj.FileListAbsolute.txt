@@ -1,4 +1,3 @@
-D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\bin\Debug\tasks.xml
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\bin\Debug\QuickTasks.exe.config
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\bin\Debug\QuickTasks.exe
 D:\kaltsoplyn\Documents\Coding\C#\QuickTasks\bin\Debug\QuickTasks.pdb

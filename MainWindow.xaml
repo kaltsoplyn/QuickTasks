@@ -24,7 +24,8 @@
                             Undo="{Binding Path=Undo}"
                             Quit="{Binding Path=Quit}" />
         </Grid>
-        <DockPanel Margin="10" Visibility="{Binding ElementName=MainTaskList, Path=ItemsSource.IsEmpty, Converter={StaticResource BoolToVis}}">
+        <DockPanel Margin="10" Visibility="{Binding ElementName=MainTaskList, Path=ItemsSource.IsEmpty, Converter={StaticResource BoolToVis}}"
+                   AllowDrop="True" Drop="LVI_Drop" >
             <TextBlock x:Name="EmptyListBanner" TextAlignment="Center" TextWrapping="Wrap" >
                     There is nothing here. <LineBreak/> 
                     Use "+" or drag and drop<LineBreak />

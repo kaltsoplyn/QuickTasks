@@ -62,13 +62,13 @@ namespace QuickTasks
         protected override void OnDragLeave(DragEventArgs e)
         {
             base.OnDragLeave(e);
-            this.Background = _bgColor;
+            this.Background = Brushes.Transparent;
         }
 
         protected override void OnDrop(DragEventArgs e)
         {
             base.OnDrop(e);
-            this.Background = _bgColor;
+            this.Background = Brushes.Transparent;
         }
 
     }

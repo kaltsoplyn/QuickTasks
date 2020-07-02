@@ -27,16 +27,46 @@ namespace QuickTasks
                 OnPropertyChanged();
             } }
 
-        // depth of undo list
-        private int undoLevels = 10;
+        // Definition of main list 'tasks', plus the extra undo prereqs
+        public ObservableCollection<TaskItem> tasks { get; set; }
+        private List<TaskItem> tasksBackup { get; set; }
+        public List<List<TaskItem>> tasksHistory = new List<List<TaskItem>>(undoLevels);
 
-        // State of the application and HasUnsavedChanges boolean
-        public enum States { Idling, Shifting, Renaming };
+        // depth of undo list and current state index
+        private static int undoLevels = 10;
+        private int currentUndoLevel = 0;
+        public int CurrentUndoLevel
+        {
+            get
+            {
+                return currentUndoLevel;
+            }
+            set
+            {
+                currentUndoLevel = value;
+                _undo.RaiseCanExecuteChanged();
+                _redo.RaiseCanExecuteChanged();
+            }
+        }
+        
 
-        private States _state = States.Idling;
-        public States State {
-            get { return _state; }
-            set { _state = value; OnPropertyChanged(); } 
+        private void AddHistoryEntry()
+        {
+            tasksBackup = new List<TaskItem>(tasks.Count);
+            tasks.ToList<TaskItem>().ForEach((task) => tasksBackup.Add(new TaskItem().CopyFrom(task)));
+
+            if (tasksHistory.Count == tasksHistory.Capacity)
+            {
+                tasksHistory.RemoveAt(0);
+            }
+            else
+            {
+                CurrentUndoLevel += 1;
+            }
+
+            tasksHistory = tasksHistory.Take(CurrentUndoLevel).Append(tasksBackup).ToList();
+
+            HasUnsavedChanges = true;
         }
 
         private bool _hasUnsavedChanges = false;
@@ -64,7 +94,12 @@ namespace QuickTasks
         private DelegateCommand<string> ReloadFromDiskCmd()
         {
             return new DelegateCommand<string>(
-                (s) => { TL.PopulateTaskList(); HasUnsavedChanges = false; },
+                (s) => 
+                { 
+                    TL.PopulateTaskList();
+                    AddHistoryEntry();
+                    HasUnsavedChanges = false; 
+                },
                 (s) => { return HasUnsavedChanges; }
             );
         }
@@ -78,12 +113,11 @@ namespace QuickTasks
               { 
                   TaskItem t = GetTaskByUID(s);
                   if (RemoveTask(t))
-                    if (!HasUnsavedChanges) HasUnsavedChanges = true; 
+                    AddHistoryEntry(); 
               },
               (s) => { return true; }
           );
         }
-
 
 
         private readonly DelegateCommand<string> _addItem;
@@ -100,7 +134,7 @@ namespace QuickTasks
                         return;
                     }
                     if (AddTask(new TaskItem(_path)))
-                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                        AddHistoryEntry();
                 },
                 (s) => { return true; }
                 );
@@ -111,8 +145,14 @@ namespace QuickTasks
         private DelegateCommand<string> RedoCmd()
         {
             return new DelegateCommand<string>(
-                (s) => { new NotImplementedException(); },
-                (s) => { return true; }
+                (s) => 
+                {
+                    CurrentUndoLevel += 1;
+                    tasks.Clear();
+                    tasksHistory[CurrentUndoLevel].ForEach(task => tasks.Add(task));
+                    HasUnsavedChanges = true;
+                },
+                (s) => { return CurrentUndoLevel < tasksHistory.Count - 1; }
                 );
         }
 
@@ -121,8 +161,14 @@ namespace QuickTasks
         private DelegateCommand<string> UndoCmd()
         {
             return new DelegateCommand<string>(
-                (s) => { new NotImplementedException(); },
-                (s) => { return true; }
+                (s) => 
+                {
+                    CurrentUndoLevel -= 1;
+                    tasks.Clear();
+                    tasksHistory[CurrentUndoLevel].ForEach(task => tasks.Add(task));
+                    HasUnsavedChanges = true;
+                },
+                (s) => { return CurrentUndoLevel > 0; }
                 );
         }
 
@@ -134,7 +180,7 @@ namespace QuickTasks
                 (uid) => 
                 { 
                     if (MoveTaskUp(GetTaskByUID(uid)))
-                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                        AddHistoryEntry();
                 },
                 (uid) => { return true; }
                 );
@@ -148,7 +194,7 @@ namespace QuickTasks
                 (uid) =>
                 {
                     if (MoveTaskDown(GetTaskByUID(uid)))
-                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                        AddHistoryEntry();
                 },
                 (uid) => { return true; }
                 );
@@ -177,7 +223,7 @@ namespace QuickTasks
                         //    break;
                     }
                     if (DropTaskAt(droppedTask, targetTask))
-                        if (!HasUnsavedChanges) HasUnsavedChanges = true;
+                        AddHistoryEntry();
 
                 },
                 (uids) => { return true; }
@@ -250,7 +296,7 @@ namespace QuickTasks
                 {
                     TaskItem t = GetTaskByUID(s[1]);
                     RenameTask(t, s[0]);
-                    HasUnsavedChanges = true; 
+                    AddHistoryEntry(); 
                 },
                 (s) => { return true; }
                 );
@@ -272,10 +318,6 @@ namespace QuickTasks
         }
 
 
-        public ObservableCollection<TaskItem> tasks { get; set; }
-        private List<TaskItem> tasksOnDisk { get; set; }
-        public ObservableCollection<ObservableCollection<TaskItem>> tasksHistory = new ObservableCollection<ObservableCollection<TaskItem>>();
-
         private TaskList TL;
 
         #endregion
@@ -286,8 +328,6 @@ namespace QuickTasks
 
             TL = new TaskList();
             tasks = TL.Tasks;
-            tasksOnDisk = new List<TaskItem>(tasks.Count);
-            tasks.ToList<TaskItem>().ForEach((task) => tasksOnDisk.Add(new TaskItem().CopyFrom(task)));
 
             TitleText = TL.TaskListTitle;
 
@@ -322,23 +362,14 @@ namespace QuickTasks
 
             _launchAndQuit = LaunchAndQuitCmd();
             _quit = QuitCmd();
+
+            AddHistoryEntry();
+            CurrentUndoLevel = 0; // This is just for initialization
+            HasUnsavedChanges = false;
         }
         #endregion
 
         #region Methods
-
-        public bool IsIdling(States state)
-        {
-            return state == States.Idling;
-        }
-        public bool IsShifting(States state)
-        {
-            return state == States.Shifting;
-        }
-        public bool IsRenaming(States state)
-        {
-            return state == States.Idling;
-        }
 
         public TaskItem GetTaskByUID(string uid)
         {
@@ -494,6 +525,13 @@ namespace QuickTasks
                 return false;
             }
         }
+
+        #endregion
+
+        #region Undo/Redo handling
+
+        
+
 
         #endregion
     }
